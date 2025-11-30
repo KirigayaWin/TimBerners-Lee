@@ -1,0 +1,64 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins';
+}
+
+.hero{
+    background-image: url(bg.jpg);
+    min-height: 100vh;
+    background-size: contain;
+}
+    
+nav{
+    background-color: white;
+    padding: 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius : 5%;
+}
+
+.logo{
+    width: 20px;
+}
+
+nav ul li{
+    display: inline-block;
+    list-style: none;
+    margin: 10px 15px;
+}
+
+nav ul li a{
+    text-decoration: none;
+    color: rgb(0, 0, 0);
+    font-weight: 400;
+}
+
+.about_us{
+    background-color: aliceblue;
+    height: 50%;
+    min-height: 50vh;
+}
+
+.skills{
+    background-color: aqua;
+    min-height: 100vh;
+}
+
+.services{
+    background-color: aquamarine;
+    min-height: 100vh;
+}
+
+.project{
+    background-color: blue;
+    height: 100%;
+    min-height: 100vh;
+}
+
+.contacts{
+    background-color: pink;
+    min-height: 100vh;
+}
