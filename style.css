@@ -129,8 +129,25 @@ nav li.logo-item{
 }
 
 .services{
-    background-color: aquamarine;
+    scroll-margin-top: 50px;
+    background-image: url(images/bg.jpg);
+    background-position: center;
     min-height: 100vh;
+    color: white;
+    text-align: left;
+}
+.servicesdata{
+    padding: 50px;
+}
+.servicesdata ul{
+    list-style-type:none;
+}
+.services h1{
+    font-size: clamp(48px,10vw,400px);
+}
+.servicesdata h2{
+    padding: 50px;
+    font-size: clamp(32px,8vw,20px);
 }
 
 .project{
