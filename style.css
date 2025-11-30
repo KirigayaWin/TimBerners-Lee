@@ -2,38 +2,109 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Poppins';
+    font-family: 'poppins';
 }
 
 .hero{
     background-image: url(bg.jpg);
     min-height: 100vh;
-    background-size: contain;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    padding-top: 20px;
 }
     
 nav{
     background-color: white;
-    padding: 20px 0;
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
     display: flex;
     align-items: center;
+    justify-content: center;
+    padding: 15px;
+    border-radius: 30px;
+    position: fixed;
+    z-index: 1231231;
+    top: 20px;
+    left: 10%;
+    right: 10%;
+    z-index: 999;
+    font-size:larger;
+}
+
+nav ul{
+    width: 100%;
+    list-style: none;
+    display: flex;
     justify-content: space-between;
-    border-radius : 5%;
+    align-items: center;
+    gap: 12px;
+    padding: 0 20px;
+    flex-wrap: nowrap;
+}
+
+nav li{
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 0;   
+    min-width: 0;  
+}
+nav a{
+    height: 100%;
+    padding: 0 12px;           
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    color: black;
+    white-space: nowrap;      
+    overflow: hidden;          
+    text-overflow: ellipsis;      
+    justify-content: center;
+}
+
+
+nav a:hover{
+    background-color: rgb(1, 1, 69);
+    border-radius: 30px;
+    color: white;
+    
+}
+
+nav li.logo-item{
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.brand-text{
+    white-space: nowrap;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
 .logo{
-    width: 20px;
+    width: 30px;
+    padding-right: 5px;
 }
 
-nav ul li{
-    display: inline-block;
-    list-style: none;
-    margin: 10px 15px;
-}
-
-nav ul li a{
-    text-decoration: none;
-    color: rgb(0, 0, 0);
-    font-weight: 400;
+@media (max-width: 900px){
+    nav ul{
+        gap: 8px;
+        flex-wrap: wrap;         
+        justify-content: center;
+    }
+    nav li{
+        flex: 0 1 auto;    
+        min-width: 0;
+    }
+    nav a{
+        padding: 8px 12px;     
+    }
+    .hideOnMobile{
+        display: none;
+    }
 }
 
 .about_us{
