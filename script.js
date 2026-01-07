@@ -1,227 +1,66 @@
-(function(){
-  const slidesEl = document.querySelector('.slides');
-  if(!slidesEl) return;
-  const slides = Array.from(slidesEl.children);
-  let index = 0;
-  let startX = 0;
-  let currentX = 0;
-  let dragging = false;
-  const threshold = 50;
+(() => {
+  const carousel = (contain, tracker, select, prev, next) => {
+    const c = document.querySelector(contain); if (!c) return;
+    const t = tracker ? c.querySelector(tracker) : c;
+    const s = c.querySelectorAll(select); if (!t || s.length === 0) return;
+    let i = 0, sx = 0, st = 0, dragging = false;
+    const pos = (inst = false) => { t.style.transition = inst ? 'none' : ''; t.style.transform = `translateX(${-i * c.clientWidth}px)`; };
+    const down = e => { dragging = true; sx = e.clientX; st = -i * c.clientWidth; t.style.transition = 'none'; };
+    const move = e => { if (!dragging) return; t.style.transform = `translateX(${st + e.clientX - sx}px)`; };
+    const up = e => {
+      if (!dragging) return; dragging = false;
+      const dx = e.clientX - sx, th = c.clientWidth * 0.15;
+      if (dx > th) i = (i - 1 + s.length) % s.length;
+      else if (dx < -th) i = (i + 1) % s.length;
+      pos();
+    };
+    t.addEventListener('pointerdown', down);
+    addEventListener('pointermove', move);
+    addEventListener('pointerup', up);
+    addEventListener('resize', () => pos(true));
+    c.querySelector(prev)?.addEventListener('click', () => { i = (i - 1 + s.length) % s.length; pos(); });
+    c.querySelector(next)?.addEventListener('click', () => { i = (i + 1) % s.length; pos(); });
+    pos(true);
+  };
 
-  function update() {
-    slidesEl.style.transform = `translateX(${-index * 100}%)`;
-  }
+  carousel('.project-carousel', '.project-track', '.project-slide', '.project-prev', '.project-next');
+  carousel('.services-carousel', '.services-track', '.services-slide', '.services-prev', '.services-next');
+  carousel('.hero .carousel', '.slides', '.slide');
 
-  function clamp(i){ return Math.max(0, Math.min(i, slides.length - 1)); }
+  const delay = 3000, vh = 10;
+  const h = () => Math.max(60, Math.round(innerHeight * vh / 100));
+  const ad = document.createElement('div');
+  Object.assign(ad.style, { position: 'fixed', left: '0', right: '0', bottom: '0', height: '0', overflow: 'hidden', zIndex: 9999, transition: 'height .36s ease' });
+  const frame = document.createElement('iframe'); frame.src = 'ad.html'; Object.assign(frame.style, { width: '100%', height: '100%', border: 0, display: 'block' });
 
-  slidesEl.addEventListener('touchstart', e => {
-    startX = e.touches[0].clientX;
-    dragging = true;
-    slidesEl.style.transition = 'none';
-  }, {passive: true});
+  const btn = document.createElement('button'); btn.textContent = '✕';
+  Object.assign(btn.style, { position: 'absolute', right: '12px', top: '-24px', width: '48px', height: '48px', borderRadius: '24px', border: 'none', background: '#222', color: '#fff', cursor: 'pointer' });
 
-  slidesEl.addEventListener('touchmove', e => {
-    if(!dragging) return;
-    currentX = e.touches[0].clientX;
-    const dx = currentX - startX;
-    slidesEl.style.transform = `translateX(${ -index * 100 + (dx / slidesEl.clientWidth) * 100 }%)`;
-  }, {passive: true});
+  btn.onclick = () => { ad.style.height = (ad.style.height === '0px' || !ad.style.height) ? h() + 'px' : '0'; };
 
-  slidesEl.addEventListener('touchend', e => {
-    if(!dragging) return;
-    dragging = false;
-    slidesEl.style.transition = '';
-    const dx = (currentX || startX) - startX;
-    if (dx > threshold) index = clamp(index - 1);
-    else if (dx < -threshold) index = clamp(index + 1);
-    update();
-    startX = currentX = 0;
+  ad.append(frame, btn);
+  document.body.append(ad);
+  setTimeout(() => ad.style.height = h() + 'px', delay);
+
+  ad.addEventListener('mousemove', e => {
+    const r = ad.getBoundingClientRect();
+    const bw = btn.offsetWidth || 48;
+    const mx = e.clientX - r.left;
+    const btnRect = btn.getBoundingClientRect();
+    const center = btnRect.left - r.left + bw / 2;
+    const closeDist = 80;
+    if (Math.abs(mx - center) < closeDist) {
+      const shift = 36;
+      const currentLeft = (btn.offsetLeft || (r.width - bw - 12));
+      const target = mx > center ? currentLeft - shift : currentLeft + shift;
+      const leftPos = Math.max(12, Math.min(r.width - bw - 12, Math.round(target)));
+      btn.style.left = leftPos + 'px';
+      btn.style.right = 'auto';
+    } else {
+      btn.style.left = '';
+      btn.style.right = '12px';
+    }
   });
 
-  slidesEl.addEventListener('mousedown', e => {
-    startX = e.clientX;
-    dragging = true;
-    slidesEl.style.transition = 'none';
-    e.preventDefault();
-  });
-  window.addEventListener('mousemove', e => {
-    if(!dragging) return;
-    currentX = e.clientX;
-    const dx = currentX - startX;
-    slidesEl.style.transform = `translateX(${ -index * 100 + (dx / slidesEl.clientWidth) * 100 }%)`;
-  });
-  window.addEventListener('mouseup', () => {
-    if(!dragging) return;
-    dragging = false;
-    slidesEl.style.transition = '';
-    const dx = (currentX || startX) - startX;
-    if (dx > threshold) index = clamp(index - 1);
-    else if (dx < -threshold) index = clamp(index + 1);
-    update();
-    startX = currentX = 0;
-  });
-  update();
+  addEventListener('resize', () => { if (ad.style.height !== '0px') ad.style.height = h() + 'px'; });
 })();
-
-/* ============================
-   PROJECT CAROUSEL (FINAL)
-   ============================ */
-
-const projectCarousel = document.querySelector('.project-carousel');
-const projectTrack = document.querySelector('.project-track');
-const projectSlides = document.querySelectorAll('.project-slide');
-const projectPrev = document.querySelector('.project-prev');
-const projectNext = document.querySelector('.project-next');
-
-let projectIndex = 0;
-const totalSlides = projectSlides.length;
-
-function updateProjectCarousel() {
-    const width = projectCarousel.clientWidth;
-    projectTrack.style.transform = `translateX(${-projectIndex * width}px)`;
-
-    document.querySelectorAll('.project-dot').forEach((dot, i) => {
-        dot.classList.toggle('active', i === projectIndex);
-    });
-}
-
-projectNext.addEventListener('click', () => {
-    projectIndex = (projectIndex + 1) % totalSlides;
-    updateProjectCarousel();
-});
-
-projectPrev.addEventListener('click', () => {
-    projectIndex = (projectIndex - 1 + totalSlides) % totalSlides;
-    updateProjectCarousel();
-});
-
-function enableSwipe() {
-    let startX = 0;
-    let currentX = 0;
-    let dragging = false;
-
-    function pointerDown(e) {
-        dragging = true;
-        startX = e.clientX || e.touches?.[0].clientX;
-        projectTrack.style.transition = 'none';
-    }
-
-    function pointerMove(e) {
-        if (!dragging) return;
-        currentX = e.clientX || e.touches?.[0].clientX;
-        const dx = currentX - startX;
-        const width = projectCarousel.clientWidth;
-        projectTrack.style.transform = `translateX(${(-projectIndex * width) + dx}px)`;
-    }
-
-    function pointerUp(e) {
-        if (!dragging) return;
-        dragging = false;
-
-        const endX = e.clientX || e.changedTouches?.[0].clientX;
-        const dx = endX - startX;
-
-        projectTrack.style.transition = '';
-
-        const threshold = 70;
-        if (dx > threshold) {
-            projectIndex = (projectIndex - 1 + totalSlides) % totalSlides;
-        } else if (dx < -threshold) {
-            projectIndex = (projectIndex + 1) % totalSlides;
-        }
-
-        updateProjectCarousel();
-    }
-
-    projectCarousel.addEventListener('mousedown', pointerDown);
-    window.addEventListener('mousemove', pointerMove);
-    window.addEventListener('mouseup', pointerUp);
-
-    projectCarousel.addEventListener('touchstart', pointerDown, { passive: true });
-    projectCarousel.addEventListener('touchmove', pointerMove, { passive: true });
-    projectCarousel.addEventListener('touchend', pointerUp);
-}
-
-enableSwipe();
-
-window.addEventListener('resize', updateProjectCarousel);
-
-updateProjectCarousel();
-
-/* =====================
-   SERVICES CAROUSEL
-===================== */
-
-const servicesCarousel = document.querySelector('.services-carousel');
-const servicesTrack = document.querySelector('.services-track');
-const servicesSlides = document.querySelectorAll('.services-slide');
-const servicesPrev = document.querySelector('.services-prev');
-const servicesNext = document.querySelector('.services-next');
-
-let servicesIndex = 0;
-const totalServicesSlides = servicesSlides.length;
-
-function updateServicesCarousel() {
-    const width = servicesCarousel.clientWidth;
-    servicesTrack.style.transform = `translateX(${-servicesIndex * width}px)`;
-}
-
-/* Prev / Next buttons */
-servicesNext.addEventListener("click", () => {
-    servicesIndex = (servicesIndex + 1) % totalServicesSlides;
-    updateServicesCarousel();
-});
-
-servicesPrev.addEventListener("click", () => {
-    servicesIndex = (servicesIndex - 1 + totalServicesSlides) % totalServicesSlides;
-    updateServicesCarousel();
-});
-
-/* Swipe Support */
-function enableServicesSwipe() {
-    let startX = 0;
-    let dragging = false;
-
-    function down(e) {
-        dragging = true;
-        startX = e.clientX || e.touches?.[0].clientX;
-        servicesTrack.style.transition = "none";
-    }
-
-    function move(e) {
-        if (!dragging) return;
-        const x = e.clientX || e.touches?.[0].clientX;
-        const dx = x - startX;
-
-        const width = servicesCarousel.clientWidth;
-        servicesTrack.style.transform =
-            `translateX(${(-servicesIndex * width) + dx}px)`;
-    }
-
-    function up(e) {
-        if (!dragging) return;
-        dragging = false;
-
-        const endX = e.clientX || e.changedTouches?.[0].clientX;
-        const dx = endX - startX;
-
-        const threshold = 70;
-        if (dx > threshold) servicesIndex = (servicesIndex - 1 + totalServicesSlides) % totalServicesSlides;
-        if (dx < -threshold) servicesIndex = (servicesIndex + 1) % totalServicesSlides;
-
-        servicesTrack.style.transition = "";
-        updateServicesCarousel();
-    }
-
-    servicesCarousel.addEventListener("mousedown", down);
-    window.addEventListener("mousemove", move);
-    window.addEventListener("mouseup", up);
-
-    servicesCarousel.addEventListener("touchstart", down, { passive: true });
-    servicesCarousel.addEventListener("touchmove", move, { passive: true });
-    servicesCarousel.addEventListener("touchend", up);
-}
-
-enableServicesSwipe();
-updateServicesCarousel();
-window.addEventListener("resize", updateServicesCarousel);
